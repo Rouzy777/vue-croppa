@@ -2,7 +2,7 @@
  * vue-croppa v1.3.8
  * https://github.com/zhanziyang/vue-croppa
  * 
- * Copyright (c) 2018 zhanziyang
+ * Copyright (c) 2021 zhanziyang
  * Released under the ISC license
  */
   
@@ -809,6 +809,16 @@ var component = { render: function render() {
         x = 1 - speed;
       }
 
+      // when a new image is loaded with the same aspect ratio
+      // as the previously remove()d one, the imgData.width and .height
+      // effectivelly don't change (they change through one tick
+      // and end up being the same as before the tick, so the
+      // watchers don't trigger), make sure scaleRatio isn't null so
+      // that zooming works...
+      if (this.scaleRatio === null) {
+        this.scaleRatio = this.imgData.width / this.naturalWidth;
+      }
+
       this.scaleRatio *= x;
     },
     zoomIn: function zoomIn() {
@@ -946,6 +956,9 @@ var component = { render: function render() {
     },
     emitNativeEvent: function emitNativeEvent(evt) {
       this.emitEvent(evt.type, evt);
+    },
+    setFile: function setFile(file) {
+      this._onNewFileIn(file);
     },
     _setContainerSize: function _setContainerSize() {
       if (this.useAutoSizing) {
